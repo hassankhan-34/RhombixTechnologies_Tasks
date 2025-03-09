@@ -1,0 +1,11 @@
+pip install wolframalpha
+pip install wikipedia
+pip install SpeechRecognition
+pip install ecapture
+pip install twilio
+pip install beautifulsoup4
+pip install winshell feedparser clint
+pip install clint
+pip install winshell
+pip install pyaudio
+pip install black
