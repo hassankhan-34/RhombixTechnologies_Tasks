@@ -1,0 +1,185 @@
+Explanation OF Code:
+Important Note: 
+User Can login with their email and their password in line no 93 and 94 to run this
+
+1. Installing Required Libraries  
+The first part of the script installs multiple Python libraries, which are needed for different functionalities:  
+ wolframalpha → Allows the assistant to compute answers to questions.  
+ wikipedia → Enables the assistant to fetch information from Wikipedia.  
+ SpeechRecognition → Allows the assistant to recognize and process voice commands.  
+ ecapture → Helps in capturing images through a webcam.  
+ twilio → Enables sending SMS messages.  
+ beautifulsoup4 → Used for web scraping (extracting data from web pages).  
+ winshell → Provides access to Windows shell features like managing Recycle Bin.  
+ pyaudio → Required for processing microphone input.  
+ feedparser → Parses RSS feeds (for fetching news updates).  
+ clint → Used for command-line utilities.  
+ black → Code formatter for better readability.  
+
+2. Importing Required Modules 
+After installing the necessary libraries, the script imports them for usage.  
+ subprocess → Used for executing system commands (e.g., shutdown, restart).  
+ pyttsx3 → A text-to-speech library for speaking responses.  
+ tkinter → Used for creating GUI applications (not used in this script).  
+ json → Handles JSON data (useful for APIs and configuration).  
+ random → Generates random numbers or selects random items.  
+ operator → Provides functions for performing standard operations.  
+ datetime → Retrieves current date and time.  
+ webbrowser → Opens web pages in the default browser.  
+ os → Allows interaction with the operating system (e.g., opening files, executing commands).  
+ shutil → Helps in file and directory management.  
+ pyjokes → Fetches random jokes.  
+ smtplib → Sends emails using SMTP (Simple Mail Transfer Protocol).  
+ ctypes → Interacts with Windows system settings (e.g., changing wallpaper, locking the screen).  
+ time → Provides time-related functions like sleep().  
+ requests → Helps in making HTTP requests to fetch data from the internet.  
+ twilio.rest → Sends SMS messages using Twilio API.  
+ win32com.client → Interfaces with Windows COM objects (used for automation).  
+ urllib.request → Fetches data from URLs.  
+
+3. Setting Up Text-to-Speech Engine (pyttsx3) 
+The assistant initializes a voice engine to speak responses aloud.  
+python
+engine = pyttsx3.init('sapi5')  # Initialize the speech engine
+voices = engine.getProperty('voices')  # Get available voices
+engine.setProperty('voice', voices[1].id)  # Select a female voice
+
+4. Functions Explanation 
+#Function: speak(audio) 
+This function converts text into speech.  
+python
+def speak(audio):
+    engine.say(audio)  # Speak the text
+    engine.runAndWait()  # Wait until speaking is done
+
+#Function:  wishMe()  
+Greets the user based on the time of day.  
+python
+def wishMe():
+    hour = int(datetime.datetime.now().hour)  # Get the current hour
+    if hour >= 0 and hour < 12:
+        speak("Good Morning Sir !")
+    elif hour >= 12 and hour < 18:
+        speak("Good Afternoon Sir !")
+    else:
+        speak("Good Evening Sir !")
+    speak("I am your Assistant")
+    speak("Jarvis 1 point o")
+
+#Function:  username()  
+Asks for the user’s name and welcomes them.  
+python
+def username():
+    speak("What should I call you, sir?")
+    uname = takeCommand()  # Get user input via speech
+    speak("Welcome Mister " + uname)
+
+#Function:  takeCommand()  
+This function listens to the user's voice and converts it to text.  
+python
+def takeCommand():
+    r = sr.Recognizer()  # Initialize recognizer
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1  # Adjust pause before recognition
+        audio = r.listen(source)  # Capture audio
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-in')  # Convert speech to text
+        print(f"User said: {query}\n")
+    except Exception as e:
+        print("Unable to recognize your voice.")
+        return "None"
+    return query
+
+#Function:  sendEmail(to, content)  
+Sends an email using **SMTP**.  
+python
+def sendEmail(to, content):
+    server = smtplib.SMTP('smtp.gmail.com', 587)  # Connect to Gmail SMTP
+    server.ehlo()
+    server.starttls()  # Secure the connection
+    server.login('your email id', 'your email password')  # Login credentials
+    server.sendmail('your email id', to, content)  # Send email
+    server.close()
+
+5. Main Execution ( if __name__ == '__main__': ) 
+
+- Calls  wishMe()  to greet the user.  
+- Calls  username()  to ask for the user's name.  
+- Starts an infinite loop to continuously listen for commands.  
+
+6. Commands Handled in the Loop 
+#Wikipedia Search 
+   python
+if 'wikipedia' in query:
+    speak('Searching Wikipedia...')
+    query = query.replace("wikipedia", "")
+    results = wikipedia.summary(query, sentences=3)
+    speak("According to Wikipedia")
+    print(results)
+    speak(results)
+   
+#Opening Websites 
+   python
+elif 'open youtube' in query:
+    webbrowser.open("youtube.com")
+elif 'open google' in query:
+    webbrowser.open("google.com")
+elif 'open stackoverflow' in query:
+    webbrowser.open("stackoverflow.com")
+   
+#Playing Music 
+   python
+elif 'play music' in query or "play song" in query:
+    music_dir = "C:\\Users\\GAURAV\\Music"
+    songs = os.listdir(music_dir)
+    os.startfile(os.path.join(music_dir, songs[1]))
+
+#Telling the Time 
+   python
+elif 'the time' in query:
+    strTime = datetime.datetime.now().strftime("%H:%M:%S")
+    speak(f"Sir, the time is {strTime}")
+#Email Sending 
+   python
+elif 'email to gaurav' in query:
+    try:
+        speak("What should I say?")
+        content = takeCommand()
+        to = "Receiver email address"
+        sendEmail(to, content)
+        speak("Email has been sent!")
+    except Exception as e:
+        speak("I am not able to send this email")
+#Jokes 
+   python
+elif 'joke' in query:
+    speak(pyjokes.get_joke())  # Fetch and speak a random joke
+#Search on Google 
+   python
+elif 'search' in query or 'play' in query:
+    query = query.replace("search", "").replace("play", "")
+    webbrowser.open(query)
+
+#Lock, Shutdown, Restart 
+   python
+elif 'lock window' in query:
+    ctypes.windll.user32.LockWorkStation()
+elif 'shutdown system' in query:
+    subprocess.call('shutdown / p /f')
+elif 'restart' in query:
+    subprocess.call(["shutdown", "/r"])
+
+7. Conclusion 
+This script is a voice assistant that can:  
+✅ Greet users  
+✅ Recognize voice commands  
+✅ Search Wikipedia  
+✅ Open websites  
+✅ Play music  
+✅ Tell time  
+✅ Send emails  
+✅ Fetch jokes  
+✅ Lock, shutdown, restart the system  
+
